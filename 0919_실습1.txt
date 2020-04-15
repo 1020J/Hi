@@ -1,0 +1,55 @@
+const gpio = require('node-wiring-pi');
+const BLUE = 29;
+const RED = 28;
+const GREEN = 27;
+const BUZZER = 25;
+const BUTTON = 24;
+var count = 0;
+
+const CheckButton = function() {
+	let data = gpio.digitalRead(BUTTON);
+	if(!data) {
+		switch (count % 3){
+			case 0:
+				gpio.digitalWrite (BLUE, 1);
+				gpio.digitalWrite (BUZZER, 1);
+				gpio.dalay(1000);
+				gpio.digitalWrite (BLUE, 0);
+				gpio.digitalWrite (BUZZER, 0);
+				break;
+			case 1: 
+				gpio.digitalWrite (RED, 1);
+				gpio.digitalWrite (BUZZER, 1);
+				gpio.dalay(1000);
+				gpio.digitalWrite (RED, 0);
+				gpio.digitalWrite (BUZZER, 0);
+				break;
+			case 2:	
+				gpio.digitalWrite (GREEN, 1);
+				gpio.digitalWrite (BUZZER, 1);
+				gpio.dalay(1000);
+				gpio.digitalWrite (GREEN, 0);
+				gpio.digitalWrite (BUZZER, 0);
+				break;
+			default: break;
+		}
+		count++;
+	}
+	setTimeout(CheckButton, 300);
+}
+
+process.on('SIGINT', function(){
+	gpio.digitalWrite(BUZZER, 0);
+	gpio.digitalWrite(BLUE, 0);
+	gpio.digitalWrite(RED, 0);
+	gpio.digitalWrite(GREEN, 0);
+	process.exit();
+});
+
+gpio.setup('wpi');
+gpio.pinMode(RED, gpio.OUTPUT);
+gpio.pinMode(BLUE, gpio.OUTPUT);
+gpio.pinMode(GREEN, gpio.OUTPUT);
+gpio.pinMode(BUZZER, gpio.OUTPUT);
+gpio.pinMode(BUTTON, gpio.INPUT);
+setImmediate(CheckButton);

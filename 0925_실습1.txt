@@ -1,0 +1,91 @@
+const gpio = require('node-wiring-pi');
+const BLUE = 29;
+const RED = 28;
+const GREEN = 27;
+const BUZZER = 26;
+const BUTTON = 25;
+const TOUCH = 24;
+const LIGHT = 23;
+var count = 0;
+var flag = true;
+
+const CTouch = function() {
+	let data = gpio.digitalRead(TOUCH);
+	if(data && flag == true) {
+		switch(count % 3) {
+			case 0:
+				gpio.digitalWrite(BUZZER, 1);
+				gpio.delay(50);
+				gpio.digitalWrite(BUZZER, 0);
+				gpio.digitalWrite(BLUE, 1);
+				gpio.digitalWrite(GREEN, 1);
+				flag = false;
+				CheckLight();
+				break;
+			case 1:
+				gpio.digitalWrite(RED, 0);
+				gpio.digitalWrite(BUZZER, 1);
+				gpio.delay(80);
+				gpio.digitalWrite(BUZZER, 0);
+				gpio.digitalWrite(BLUE, 0);
+				gpio.digitalWrite(GREEN, 0);
+				break;
+			case 2:
+				gpio.digitalWrite(BUZZER, 1);
+				gpio.delay(100);
+				gpio.digitalWrite(BUZZER, 0);
+				gpio.delay(100);
+				gpio.digitalWrite(BUZZER, 1);
+				gpio.delay(100);
+				gpio.digitalWrite(BUZZER, 0);
+				gpio.digitalWrite(BLUE, 0);
+				gpio.digitalWrite(RED, 0);
+				gpio.digitalWrite(GREEN, 0);				
+				break;
+			default : break;
+		}
+		count++;
+	}
+	setTimeout(CTouch, 300);
+}
+
+const CheckLight = function() {
+	gpio.digitalWrite(RED,0);
+	let data = gpio.digitalRead(TOUCH);
+	let data1 = gpio.digitalRead(LIGHT);
+	if(data) {
+		flag = true;
+		return CheckTouch();
+	}
+	if(!data1){
+		console.log("Bright");
+		gpio.digitawlWrite(BLUE,1);
+		gpio.digitawlWrite(GREEN,1);
+		gpio.digitawlWrite(RED,0);
+	}
+	else{
+		console.log("Dark");
+		gpio.digitawlWrite(BLUE,0);
+		gpio.digitawlWrite(GREEN,0);
+		gpio.digitawlWrite(RED,1);	
+	}
+	setTimeout(CheckLight, 500);
+}
+
+process.on('SIGINT', function(){
+	gpio.digitalWrite(BUZZER, 0);
+	gpio.digitalWrite(BLUE, 0);
+	gpio.digitalWrite(RED, 0);
+	gpio.digitalWrite(GREEN, 0);
+	console.log("Exit...");
+	process.exit();
+});
+
+gpio.setup('wpi');
+gpio.pinMode(RED, gpio.OUTPUT);
+gpio.pinMode(BLUE, gpio.OUTPUT);
+gpio.pinMode(GREEN, gpio.OUTPUT);
+gpio.pinMode(BUZZER, gpio.OUTPUT);
+gpio.pinMode(TOUCH, gpio.INPUT);
+gpio.pinMode(LIGHT, gpio.INPUT);
+setTimeout(CTouch, 300);
