@@ -48,5 +48,7 @@ process.on('SIGINT', function(){
 
 gpio.setup('wpi');
 gpio.pinMode(RED, gpio.OUTPUT);
+gpio.pinMode(RED, gpio.OUTPUT);
+gpio.pinMode(RED, gpio.OUTPUT); #Ãß°¡ÇÔ
 gpio.pinMode(BUTTON, gpio.INPUT);
 setImmediate(CheckButton);
